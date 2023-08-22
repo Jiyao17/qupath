@@ -10,6 +10,7 @@ from copy import deepcopy
 
 from .types import Fidelity, ExpCost, OpResult
 
+
 class EntType(Enum):
     # input state type of quantum operations
     DEPHASED = 1

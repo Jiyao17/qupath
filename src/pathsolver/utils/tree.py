@@ -1,7 +1,8 @@
+
 from copy import deepcopy
 
-from ..physical import quantum as qu
-from ..physical.network import EdgeTuple
+from ...physical import quantum as qu
+from ...physical.network import EdgeTuple
 
 
 class TreeNode:
@@ -11,7 +12,7 @@ class TreeNode:
         TreeNode.node_id += 1
         return TreeNode.node_id
 
-    def __init__(self, edge_tuple: EdgeTuple, fid: qu.FidType,
+    def __init__(self, edge_tuple: EdgeTuple, fid: qu.Fidelity,
                 parent=None, left=None, right=None, node_id=None) -> None:
         # node info
         if node_id is None:
@@ -20,7 +21,7 @@ class TreeNode:
             assert node_id > TreeNode.node_id
             self.node_id = node_id
         self.edge_tuple: EdgeTuple = edge_tuple
-        self.fid: qu.FidType = fid
+        self.fid: qu.Fidelity = fid
 
         # tree structure
         self.parent: TreeNode = parent
@@ -28,10 +29,10 @@ class TreeNode:
         self.right: TreeNode = right
 
         # optimization info
-        self.cost: qu.ExpCostType = 1
-        self.grad_f: qu.FidType = 1
-        self.grad_cn: qu.ExpCostType = 1
-        self.grad_cf: qu.ExpCostType = 1
+        self.cost: qu.ExpCost = 1
+        self.grad_f: qu.Fidelity = 1
+        self.grad_cn: qu.ExpCost = 1
+        self.grad_cf: qu.ExpCost = 1
         self.efficiency: float = 1
         self.adjust: float = 1
         self.adjust_eff: float = 1
@@ -61,7 +62,7 @@ class Leaf(TreeNode):
     Leaf Node in the SPS Tree
     """
 
-    def __init__(self, edge_tuple: EdgeTuple, fid: qu.FidType,
+    def __init__(self, edge_tuple: EdgeTuple, fid: qu.Fidelity,
                     parent: TreeNode,) -> None:
         super().__init__(edge_tuple, fid, parent, None, None)
 
@@ -77,7 +78,7 @@ class Branch(TreeNode):
     Branch Node in the SPS Tree
     """
 
-    def __init__(self, edge_tuple: EdgeTuple, fid: qu.FidType, 
+    def __init__(self, edge_tuple: EdgeTuple, fid: qu.Fidelity, 
                 parent: TreeNode, left: TreeNode, right: TreeNode,
                 op: qu.OpType, prob: float) -> None:
         super().__init__(edge_tuple, fid, parent, left, right)
@@ -176,6 +177,32 @@ class MetaTree():
         #     return left
         # else:
         #     return right
+
+    @staticmethod
+    def build_cbt(nodes: 'list[TreeNode]', op:qu.OpType=qu.OpType.SWAP) -> TreeNode:
+        # build a complete binary tree
+        # whose leaves are the nodes in the list
+        # the order of the leaves is preserved
+
+        # height of the tree
+        h = 0
+        while 2 ** h < len(nodes):
+            h += 1
+
+        cbt_arrary = [None] * (2 * len(nodes) - 1)
+        # create all internal nodes
+        for i in range(len(nodes) - 1):
+            cbt_arrary[i] = Branch(None, 1, None, None, None, op, 1)
+        # number of internal nodes in the second last level
+        n = 2 ** (h - 1) - 1
+        # assign leaves from left to right of the last level of the tree
+        for i in range(len(nodes)):
+            cbt_arrary[2 ** h - 1 + i] = nodes[i]
+        
+
+
+
+
 
     def __init__(self, leaves: 'dict[EdgeTuple, float]', op: 'qu.Gate'=qu.GDP) -> None:
         self.leaves = leaves

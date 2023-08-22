@@ -1,2 +1,2 @@
-# qupath
-A Quantum path solver.
+# QuPath
+A quantum path solver for swapping and purification scheduling.

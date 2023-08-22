@@ -3,10 +3,10 @@
 from copy import deepcopy
 
 
-from ..physical.network import EdgeTuple
-from ..physical import quantum as qu
-from .tree import TreeNode, Leaf, Branch, MetaTree
-from .types import TreeShape
+from ...physical.network import EdgeTuple
+from ...physical import quantum as qu
+from ..utils.tree import TreeNode, Leaf, Branch, MetaTree
+from ..utils.types import TreeShape
 
 class SPST(MetaTree):
     """
